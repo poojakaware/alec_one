@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+<body>
+
+<div ng-app="myApp" ng-controller="myCtrl"> 
+  Total distance Travel :-{{distance}} km <br/>
+   Total fare is : {{fare}} <br/>
+<input type="button" value="Next" ng-click="update_lat_long()" />
+</div>
+
+
+<script>
+var app = angular.module('myApp', []);
+app.controller('myCtrl', function($scope, $http,$interval) {
+  $scope.distance= 0;
+  $scope.fare = 0;
+  $scope.fetch_distance_rate = function(){
+    var data_api={mode:'find_distance_and_fare'}
+      $http({
+        method : "POST",
+        url :'index.php/',  
+        data:data_api
+    }).then(function mySuccess(response) {
+      console.log("Fetch face and distance respo is ",response.data)      
+        $scope.myWelcome = response.data;
+        $scope.distance =$scope.myWelcome. distance
+        $scope.fare =$scope.myWelcome.fare 
+    }, function myError(response) {
+        $scope.myWelcome = response.statusText;
+    });
+  }
+
+  //********************************************************
+
+  var current_long=[73.721205,73.745570,73.759106,73.769109,73.779938]
+  var current_lat=[18.595648,18.591479,18.587630,18.558740,18.559658]
+
+  
+var loop=0;
+  $scope.update_lat_long = function(){
+$scope.send_data={mode:'update_lat_lng',d_dest_lat:current_lat[loop],d_dist_lng:current_long[loop]}
+console.log("Data b4 send",$scope.send_data,loop)    
+      $http({
+        method : "POST",
+        url : "index.php/",
+        data:$scope.send_data
+    }).then(function mySuccess(response) {
+      console.log("Update lat long sucessfully:-",response)    
+  $scope.fetch_distance_rate()
+        
+      loop = loop+1;
+    }, function myError(response) {
+    });
+  }
+
+
+
+
+});
+</script>
+
+</body>
+</html>
